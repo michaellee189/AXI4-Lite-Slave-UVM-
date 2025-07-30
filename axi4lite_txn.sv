@@ -33,7 +33,7 @@ class axi4lite_txn extends uvm_sequence_item;
     // ---------------
     // Constructor
     // ---------------
-    function new(string name = "transaction");
+    function new(string name);
         super.new(name);
     endfunction
 

@@ -5,7 +5,7 @@ class axi4lite_sequence extends uvm_sequence #(axi4lite_txn);
 
     int unsigned num_seqs = 10;
 
-    function new(string name = "sequence");
+    function new(string name);
         super.new(name);
     endfunction
 
@@ -17,28 +17,39 @@ class axi4lite_sequence extends uvm_sequence #(axi4lite_txn);
         rand bit [DATA_WIDTH-1:0]       wdata;
         rand bit [(DATA_WIDTH/8)-1:0]   wstrb;
 
-        assert(std::randomize(addr, wdata, wstrb)) else $fatal("Sequence failed to randomize");
-
+        // Informs the user of transaction details during simulation
         `uvm_info("SEQ", $sformatf("WRITE: addr=0x%08x, data=0x%08x, strb=0x%x", addr, wdata, wstrb), UVM_MEDIUM)
         `uvm_info("SEQ", $sformatf("READ : addr=0x%08x", addr), UVM_MEDIUM)
     
         axi4lite_txn write_seq, read_seq;
 
         for (int i = 0; i < num_seqs; i++) begin
-            // Send a write request and a read request with the same address consecutively
+            // Send a write request and a read request with the same address back to back
+            assert(std::randomize(addr, wdata, wstrb)) else 
+                $fatal("Sequence failed to randomize");
+
+            // Enforce alignment: 4-byte (32-bit)
+            addr = addr & ~(DATA_WIDTH/8 - 1);
+
+            // WRITE transaction
             write_seq = axi4lite_txn::type_id::create("write_seq", this);
             start_item(write_seq);
                 write_seq.write = 1;
-                write_seq.addr  = addr;
+                write_seq.addr  = addr 
                 write_seq.wdata = wdata;
                 write_seq.wstrb = wstrb;
             finish_item(write_seq);
 
+            `uvm_info("SEQ", $sformatf("WRITE: addr=0x%08x, data=0x%08x, strb=0x%x", addr, wdata, wstrb), UVM_MEDIUM)
+
+            // READ transaction
             read_seq = axi4lite_txn::type_id::create("read_seq", this);
             start_item(read_seq);
                 read_seq.write = 0;
-                read_seq.addr  = addr;
+                read_seq.addr  = addr 
             finish_item(read_seq);
+
+            `uvm_info("SEQ", $sformatf("READ : addr=0x%08x", addr), UVM_MEDIUM)
         end
 
     endtask

@@ -27,10 +27,12 @@ module axi4lite_slv
             axi.AWREADY <= 1'b1;
         end
         else begin
+            // Sets write address flag and deasserts ready when handshake is complete
             if (axi.AWVALID && axi.AWREADY) begin
                 aw_done <= 1'b1;
                 axi.AWREADY <= 1'b0;
             end
+            // Resets write address flag and reasserts ready when write response is complete
             else if (aw_done && b_done) begin
                 aw_done <= 1'b0;
                 axi.AWREADY <= 1'b1;
@@ -74,12 +76,15 @@ module axi4lite_slv
                 axi.BVALID    <= 1'b0;
                 axi.BRESP     <= 2'b00;
             end
+            // Write data in the register of the received write address when both data & address handshakes are complete
             else if (aw_done && w_done && !b_done) begin
                 if (!b_running) begin
                     b_running <= 1'b1;
-                    if (axi.AWADDR[ADDR_WIDTH-1:2] < REG_COUNT) begin // if write address is within range
+                    if (axi.AWADDR[ADDR_WIDTH-1:2] < REG_COUNT) begin 
+                        // if write address is within range
+                        // AXI4-lite addresses must be byte-aligned to data width (32bit), therefor they are in multiples of 4
                         for (j = 0; j < DATA_WIDTH/8; j++) begin
-                            if (axi.WSTRB[j])
+                            if (axi.WSTRB[j]) // determines which bytes to write
                                 regs[axi.AWADDR[ADDR_WIDTH-1:2]][8*j +: 8] <= axi.WDATA [8*j +: 8];
                         end
                         axi.BRESP <= 2'b00; // OK
@@ -129,7 +134,8 @@ module axi4lite_slv
             else if (ar_done && !r_done) begin
                 if (!r_running) begin
                     r_running <= 1'b1;
-                    if (axi.ARADDR[ADDR_WIDTH-1:2] < REG_COUNT) begin // if read address is in range
+                    // Read and report the data in the register of the received read address when both data & address handshakes are complete
+                    if (axi.ARADDR[ADDR_WIDTH-1:2] < REG_COUNT) begin // if read address is within range
                         axi.RDATA <= regs[axi.ARADDR[ADDR_WIDTH-1:2]];
                         axi.RRESP <= 2'b00; // OK
                     end

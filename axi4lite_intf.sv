@@ -37,13 +37,13 @@ interface axi4lite_intf
     logic                        RVALID,
     logic                        RREADY
 
-    modport tb(
+    modport tb( // Master
         input  aclk, rst_n,
         input  AWREADY, WREADY, BRESP, BVALID, ARREADY, RDATA, RRESP, RVALID,
         output AWADDR, AWVALID, WDATA, WSTRB, WVALID, BREADY, ARADDR, ARVALID, RREADY
     );
 
-    modport dut(
+    modport dut( // Slave
         input  aclk, rst_n,
         input  AWADDR, AWVALID, WDATA, WSTRB, WVALID, BREADY, ARADDR, ARVALID, RREADY,
         output AWREADY, WREADY, BRESP, BVALID, ARREADY, RDATA, RRESP, RVALID

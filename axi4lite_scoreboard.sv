@@ -5,7 +5,7 @@ class axi4lite_scoreboard extends uvm_scoreboard;
 
     `uvm_component_utils(axi4lite_scoreboard)
 
-    function new (string name = "scoreboard", uvm_component parent);
+    function new (string name, uvm_component parent);
         super.new(name, parent);
     endfunction
 
@@ -22,28 +22,28 @@ class axi4lite_scoreboard extends uvm_scoreboard;
         `uvm_info(get_type_name(), $sformatf("Received transaction: %s", txn.convert2string()),
                   UVM_MEDIUM)
 
-        if (txn.write) begin // Write packet
+        if (txn.write) begin // Write packet, received first
             `uvm_info(get_type_name(), $sformatf("WRITE txn received: addr = 0x%08x, data = 0x%08x",
                       txn.addr, txn.wdata), UVM_MEDIUM)
             write_map[txn.addr] = txn.wdata;
         end
         
-        else begin // Read packet
+        else begin // Read packet, received right after write packet
             `uvm_info(get_type_name(), $sformatf("READ txn received: addr = 0x%08x, data = 0x%08x",
                       txn.addr, txn.rdata), UVM_MEDIUM)
+                      
             if (write_map.exists(txn.addr)) begin
-                if (txn.rdata !== write_map[txn.addr]) 
+                if (txn.rdata !== write_map[txn.addr]) // Failed, affects error count
                     `uvm_error(get_type_name(), $sformatf("READ mismatch at addr 0x%08x: expected 0x%08x, got 0x%08x", 
                                txn.addr, write_map[txn.addr], txn.rdata))
-                else
+                else // Success
                     `uvm_info(get_type_name(), $sformatf("READ MATCH at addr 0x%08x: data = 0x%08x",
                               txn.addr, txn.rdata), UVM_LOW)
             end
-            else 
+            else // uvm_warning is less serious than uvm_error
                 `uvm_warning(get_type_name(), $sformatf("READ at addr 0x%08x: no WRITE data recorded",
                              txn.addr))
         end
-        
     endfunction
     
 

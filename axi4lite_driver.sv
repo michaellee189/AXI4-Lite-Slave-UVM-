@@ -2,10 +2,10 @@ class axi4lite_driver extends uvm_driver #(axi4lite_txn);
 
     `uvm_component_utils(axi4lite_driver)
 
-    function new (name = "driver", uvm_component parent);
+    function new (string name, uvm_component parent);
         super.new(name, parent);
     endfunction
-
+    
     virtual axi4lite_intf intf;
     
     virtual function void build_phase(uvm_phase phase);
@@ -34,13 +34,15 @@ class axi4lite_driver extends uvm_driver #(axi4lite_txn);
             `uvm_info (get_type_name(), $sformatf ("Waiting for data from sequencer"), UVM_MEDIUM)
             seq_item_port.get_next_item(req); 
             drive_item(req);
-            seq_item_port.item_done();
+            seq_item_port.item_done(); 
         end
     endtask
 
 endclass
 
-task axi4lite_driver::drive_item(axi4lite_txn txn); // Master device logic
+// Drives sequence received from sequencer to the interface. 
+// Basically the master device logic
+task axi4lite_driver::drive_item(axi4lite_txn txn); 
     if(txn.write) begin
         // Write Address Channel
         intf.AWADDR  <= txn.addr;
