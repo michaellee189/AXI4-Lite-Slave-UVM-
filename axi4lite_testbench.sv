@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 `include "uvm_macros.svh"
 import uvm_pkg::*;
 `include "axi4lite_intf.sv" // AXI4-Lite interface

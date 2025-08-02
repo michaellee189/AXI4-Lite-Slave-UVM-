@@ -9,6 +9,7 @@ class axi4lite_scoreboard extends uvm_scoreboard;
         super.new(name, parent);
     endfunction
 
+    // Implementation from monitor
     uvm_analysis_imp #(axi4lite_txn, axi4lite_scoreboard) scoreboard_imp;
 
     function void build_phase (uvm_phase phase);

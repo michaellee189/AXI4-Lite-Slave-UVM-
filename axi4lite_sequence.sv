@@ -33,12 +33,12 @@ class axi4lite_sequence extends uvm_sequence #(axi4lite_txn);
 
             // WRITE transaction
             write_seq = axi4lite_txn::type_id::create("write_seq", this);
-            start_item(write_seq);
+            start_item(write_seq); // Internally calls wait_for_grant() from driver
                 write_seq.write = 1;
                 write_seq.addr  = addr 
                 write_seq.wdata = wdata;
                 write_seq.wstrb = wstrb;
-            finish_item(write_seq);
+            finish_item(write_seq); // Internally waits for item_done() from driver
 
             `uvm_info("SEQ", $sformatf("WRITE: addr=0x%08x, data=0x%08x, strb=0x%x", addr, wdata, wstrb), UVM_MEDIUM)
 

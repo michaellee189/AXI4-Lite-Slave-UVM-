@@ -17,7 +17,10 @@ class axi4lite_test extends uvm_test;
 
     virtual task run_phase(uvm_phase phase)
         phase.raise_objection(this);
+        
+        // Run sequence
         seq0.start(env0.agnt0.seqr0);
+
         phase.drop_objection(this);
     endtask
 

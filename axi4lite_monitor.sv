@@ -13,7 +13,10 @@ class axi4lite_monitor extends uvm_monitor;
     virtual function build_phase(uvm_phase phase);
         super.build_phase(phase);
         
-        mon_analysis_port = new ("mon_analysis_port", this);
+        // Port to scoreboard & functional coverage
+        mon_analysis_port = new("mon_analysis_port", this);
+
+        // Retrieve interface handle
         if (!uvm_config_db #(virtual axi4lite_intf)::get(this, "", "intf", intf)) begin
             `uvm_fatal (get_type_name(), "DUT interface not found")
         end
@@ -37,10 +40,12 @@ class axi4lite_monitor extends uvm_monitor;
                 mon_txn.wdata = intf.WDATA;
                 mon_txn.wstrb = intf.WSTRB;
             
-                // Wait for write response
+                // Wait for write respons to complete for a full write
                 do @ (posedge intf.aclk);
                 while (!(intf.BVALID && intf.BREADY));
                 mon_txn.bresp = intf.BRESP;
+                
+                // Fanout port
                 mon_analysis_port.write(mon_txn);
             end
         end
@@ -55,11 +60,12 @@ class axi4lite_monitor extends uvm_monitor;
                 mon_txn.write = 0;
                 mon_txn.addr  = intf.ARADDR;
             
-                // Wait for read response
+                // Wait for read response to complete for a full read
                 do @ (posedge intf.aclk);
                 while (!(intf.RVALID && intf.RREADY));
                 mon_txn.rdata = intf.RDATA;
                 mon_txn.rresp = intf.RRESP;
+
                 mon_analysis_port.write(mon_txn);
             end
         end

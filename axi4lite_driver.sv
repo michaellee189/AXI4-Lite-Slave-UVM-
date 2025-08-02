@@ -41,7 +41,7 @@ class axi4lite_driver extends uvm_driver #(axi4lite_txn);
 endclass
 
 // Drives sequence received from sequencer to the interface. 
-// Basically the master device logic
+// Sort of the master device logic
 task axi4lite_driver::drive_item(axi4lite_txn txn); 
     if(txn.write) begin
         // Write Address Channel
