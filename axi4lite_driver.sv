@@ -7,9 +7,11 @@ class axi4lite_driver extends uvm_driver #(axi4lite_txn);
     endfunction
     
     virtual axi4lite_intf intf;
+    axi4lite_txn req;
     
     virtual function void build_phase(uvm_phase phase);
         super.build_phase (phase);
+        req = axi4lite_txn::type_id::create("req");
         if (!uvm_config_db #(virtual axi4lite_intf)::get(this, "", "intf", intf)) begin
             `uvm_fatal(get_type_name(), "DUT interface not found")
         end
@@ -17,19 +19,6 @@ class axi4lite_driver extends uvm_driver #(axi4lite_txn);
 
     virtual task run_phase(uvm_phase phase);
         super.run_phase(phase);
-        
-        // Initialize interface signals
-        intf.AWADDR  <= '0;
-        intf.AWVALID <= 0;
-        intf.WDATA   <= '0;
-        intf.WSTRB   <= 0;
-        intf.WVALID  <= 0;
-        intf.BREADY  <= 0;
-        intf.ARADDR  <= '0;
-        intf.ARVALID <= 0;
-        intf.RREADY  <= 0;
-
-        axi4lite_txn req;
         forever begin
             `uvm_info (get_type_name(), $sformatf ("Waiting for data from sequencer"), UVM_MEDIUM)
             seq_item_port.get_next_item(req); 
@@ -38,10 +27,12 @@ class axi4lite_driver extends uvm_driver #(axi4lite_txn);
         end
     endtask
 
+    extern task drive_item(axi4lite_txn txn);
+
 endclass
 
-// Drives sequence received from sequencer to the interface. 
-// Sort of the master device logic
+// Drives sequence received from sequencer to the interface
+
 task axi4lite_driver::drive_item(axi4lite_txn txn); 
     if(txn.write) begin
         // Write Address Channel
@@ -52,7 +43,7 @@ task axi4lite_driver::drive_item(axi4lite_txn txn);
         
         // Write Data Channel
         intf.WDATA  <= txn.wdata;
-        intf.WSTRB  <= txn.strb;
+        intf.WSTRB  <= txn.wstrb;
         intf.WVALID <= 1;
         wait (intf.WREADY == 1);
         intf.WVALID <= 0;

@@ -11,8 +11,8 @@ class axi4lite_env extends uvm_env;
 
     virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-        agnt0 = axi4lite_agent::type_id::create("agent", this);
-        scbd0 = axi4lite_scoreboard::type_id::create("scoreboard", this);
+        agnt0 = axi4lite_agent::type_id::create("agnt0", this);
+        scbd0 = axi4lite_scoreboard::type_id::create("scbd0", this);
 
     endfunction
 

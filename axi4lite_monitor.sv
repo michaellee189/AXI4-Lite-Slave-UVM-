@@ -10,7 +10,7 @@ class axi4lite_monitor extends uvm_monitor;
 
     uvm_analysis_port #(axi4lite_txn) mon_analysis_port;
 
-    virtual function build_phase(uvm_phase phase);
+    virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         
         // Port to scoreboard & functional coverage

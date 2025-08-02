@@ -27,13 +27,14 @@ class axi4lite_txn extends uvm_sequence_item;
         `uvm_field_int(wdata,  UVM_ALL_ON)
         `uvm_field_int(wstrb,  UVM_ALL_ON)
         `uvm_field_int(rdata,  UVM_ALL_ON)
-        `uvm_field_int(resp,   UVM_ALL_ON)
+        `uvm_field_int(bresp,  UVM_ALL_ON)
+        `uvm_field_int(rresp,  UVM_ALL_ON)
     `uvm_object_utils_end
 
     // ---------------
     // Constructor
     // ---------------
-    function new(string name);
+    function new(string name = "axi4lite_txn");
         super.new(name);
     endfunction
 
